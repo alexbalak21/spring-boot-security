@@ -12,10 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -39,9 +36,10 @@ public class JwtService {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTime);
+        String jti = UUID.randomUUID().toString();  // generate unique token ID
 
         return TOKEN_PREFIX + Jwts.builder()
-                .header().add("typ", "JWT").and()
+                .header().add("typ", "JWT").and().id(jti)
                 .subject(userPrincipal.getUsername())
                 .claim("tokenType", "accessToken")
                 .issuedAt(now)
