@@ -1,5 +1,6 @@
 package app.controller;
 
+import app.dto.LoginRequest.LoginRequest;
 import app.dto.RegisterRequest;
 import app.service.AuthService;
 import jakarta.validation.Valid;
@@ -22,6 +23,9 @@ public class AuthController {
         authService.register(request);
         return ResponseEntity.ok("User registered successfully");
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
 
     //https://youtu.be/clMI_jhQcR4?si=-pzedq7o30eXaU30&t=2585
 
