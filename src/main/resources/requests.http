@@ -23,3 +23,15 @@ Content-Type: application/json
     "name": "Product Created",
     "price": "100.00"
 }
+
+
+###POST REGISTER USER
+POST http://localhost:8080/api/auth/register
+Content-type: application/json
+
+{
+    "fullName": "Alex Black",
+    "username": "alex",
+    "password": "password",
+    "role": "ROLE_ADMIN"
+}

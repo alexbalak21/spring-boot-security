@@ -30,24 +30,46 @@ public class SecurityConfig {
     }
 
     /**
-     * Configures the main Spring Security filter chain.
-     * - Disables CSRF for simplicity (enable as needed)
-     * - Requires authentication for all requests
-     * - Assigns the provided UserDetailsService and PasswordEncoder
-     * - Enables basic HTTP authentication
+     * Configures the primary Spring Security filter chain for the application.
+     * This method defines how incoming HTTP requests are secured, authenticated, and processed.
+     * Instead of using deprecated security beans, it leverages Spring Security's modern, declarative approach.
+     * Highlights:
+     * - Disables CSRF protection (common for stateless REST APIs).
+     * - Permits unauthenticated access to /api/auth/** endpoints (e.g., login/register).
+     * - Requires authentication for all other endpoints.
+     * - Uses the custom UserDetailsService to load user credentials from the database.
+     * - Enables HTTP Basic authentication for simple credential exchange via headers.
+     *
+     * @param http The HttpSecurity object used to build the security configuration.
+     * @return A configured SecurityFilterChain bean that Spring uses to enforce security rules.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                // Disable CSRF protection — typically done for APIs that don't use cookies or sessions.
+                // You may want to enable this for stateful web applications or add CSRF tokens instead.
                 .csrf(csrf -> csrf.disable())
+
+                // Define which endpoints require authentication and which are publicly accessible.
                 .authorizeHttpRequests(requests -> requests
+                        // Allow unauthenticated access to authentication-related endpoints like login or registration.
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // Require authentication for any other endpoints not explicitly permitted.
                         .anyRequest().authenticated()
                 )
-                // Registers your custom UserDetailsService to let Spring Security
-                // load user-specific data (e.g., from a database) during authentication.
+
+                // Assign your custom UserDetailsService implementation.
+                // Spring Security will use this to load user details (username, roles, password, etc.)
+                // during the authentication process.
                 .userDetailsService(userDetailsService)
+
+                // Enable HTTP Basic authentication with default settings.
+                // This means clients must send credentials in the Authorization header on each request.
+                // Suitable for simple API interactions or tools like Postman.
                 .httpBasic(Customizer.withDefaults())
+
+                // Finalize the configuration and return the built security filter chain.
                 .build();
     }
 }
