@@ -48,8 +48,7 @@ Content-type: application/json
 
 ###GET ALL PRODUCTS
 GET http://localhost:8080/api/products
-
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGV4IiwidG9rZW5UeXBlIjoiYWNjZXNzVG9rZW4iLCJpYXQiOjE3NTAyNzM4NjYsImV4cCI6MTc1MDI3NzQ2Nn0.YdJQw0_YFejtaixjsKSR9YdfCdnlxKmR214qsxqvhCV8kE_QnX-4_12n6UxAqNFjdfpRbyo5htkxmh5gOr2zUQ
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGV4IiwidG9rZW5UeXBlIjoiYWNjZXNzVG9rZW4iLCJpYXQiOjE3NTAyNzUxMzIsImV4cCI6MTc1MDI3ODczMn0.Y9tHkz0C8PTjK-HToaG5Zs-5ONzII2l2gvXCtWfbtw4yG29HGJuPivMYSBSDuJJ5qW3awY_u2x1TRP3qCQPfcg
 Content-Type: application/json
 
 {}
