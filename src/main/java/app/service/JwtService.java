@@ -40,8 +40,10 @@ public class JwtService {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTime);
 
-        return TOKEN_PREFIX + Jwts
-                .builder()
+        return TOKEN_PREFIX + Jwts.builder()
+                .header()
+                .add("typ", "JWT")
+                .and()
                 .subject(userPrincipal.getUsername())
                 .claim("tokenType", "accessToken")
                 .issuedAt(now)

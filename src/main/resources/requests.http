@@ -45,3 +45,11 @@ Content-type: application/json
     "username": "alex",
     "password": "password"
 }
+
+###GET ALL PRODUCTS
+GET http://localhost:8080/api/products
+
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbGV4IiwidG9rZW5UeXBlIjoiYWNjZXNzVG9rZW4iLCJpYXQiOjE3NTAyNzM4NjYsImV4cCI6MTc1MDI3NzQ2Nn0.YdJQw0_YFejtaixjsKSR9YdfCdnlxKmR214qsxqvhCV8kE_QnX-4_12n6UxAqNFjdfpRbyo5htkxmh5gOr2zUQ
+Content-Type: application/json
+
+{}
