@@ -1,6 +1,7 @@
 package app.service;
 
 import app.dto.TokenPair;
+import app.utils.RandomStringGenerator;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -30,13 +31,15 @@ public class JwtService {
     @Value("${app.jwt.refreshExpiration}")
     private long refreshExpirationTime;
 
+
+
     private static final String TOKEN_PREFIX = "Bearer ";
 
     public String generateAccessToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTime);
-        String jti = UUID.randomUUID().toString();  // generate unique token ID
+        String jti = RandomStringGenerator.generate(64);  // generate unique token ID
 
         return TOKEN_PREFIX + Jwts.builder()
                 .header().add("typ", "JWT").and().id(jti)
