@@ -22,13 +22,13 @@ import java.util.Optional;
 @Slf4j
 public class JwtService {
 
-    @Value("${jwt.secret}")
+    @Value("${app.jwt.authSecret}")
     private String secretKey;
-    @Value("${jwt.refreshSecret}")
+    @Value("${app.jwt.refreshSecret}")
     private String refreshSecretKey;
-    @Value("${jwt.expiration}")
+    @Value("${app.jwt.AuthExpiration}")
     private long expirationTime;
-    @Value("${jwt.refreshExpiration}")
+    @Value("${app.jwt.refreshExpiration}")
     private long refreshExpirationTime;
 
     private final static String TOKEN_PREFIX = "Bearer ";
