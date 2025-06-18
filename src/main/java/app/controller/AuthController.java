@@ -26,9 +26,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok("Logged in successfully");
+    }
 
-    //https://youtu.be/clMI_jhQcR4?si=-pzedq7o30eXaU30&t=2585
 
-    //BLACKLIST
-    //https://youtu.be/Uslb42Qn5ac?si=H2dk0McUCDdhBKEq
 }
