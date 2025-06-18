@@ -1,8 +1,25 @@
+#PowerShell command : [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("alex:password"))
+
 ###GET ALL PRODUCTS
 GET http://localhost:8080/api/products
 #Base Authentication Header
-#PowerShell command : [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("alex:password"))
 Authorization: Basic YWxleDpwYXNzd29yZA==
 Content-Type: application/json
 
 {}
+
+
+###GET PRODUCT BY ID
+GET http://localhost:8080/api/products/1
+Authorization: Basic YWxleDpwYXNzd29yZA==
+Content-Type: application/json
+
+###POST PRODUCT
+POST http://localhost:8080/api/products
+Authorization: Basic YWxleDpwYXNzd29yZA==
+Content-Type: application/json
+
+{
+    "name": "Product Created",
+    "price": "100.00"
+}
