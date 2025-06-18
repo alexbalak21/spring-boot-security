@@ -40,7 +40,7 @@ public class JwtService {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTime);
 
-        String token = TOKEN_PREFIX + Jwts.builder()
+        return TOKEN_PREFIX + Jwts.builder()
                 .header().add("typ", "JWT").and()
                 .subject(userPrincipal.getUsername())
                 .claim("tokenType", "accessToken")
@@ -48,9 +48,6 @@ public class JwtService {
                 .expiration(expiryDate)
                 .signWith(getAccessSigningKey())
                 .compact();
-
-        log.debug("🔐 Generated Access Token for user '{}', expires at {}", userPrincipal.getUsername(), expiryDate);
-        return token;
     }
 
     public String generateRefreshToken(Authentication authentication) {
@@ -61,16 +58,13 @@ public class JwtService {
         Map<String, String> claims = new HashMap<>();
         claims.put("tokenType", "refreshToken");
 
-        String token = TOKEN_PREFIX + Jwts.builder()
+        return TOKEN_PREFIX + Jwts.builder()
                 .subject(userPrincipal.getUsername())
                 .claims(claims)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getRefreshSigningKey())
                 .compact();
-
-        log.debug("🔄 Generated Refresh Token for user '{}', expires at {}", userPrincipal.getUsername(), expiryDate);
-        return token;
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
@@ -147,12 +141,10 @@ public class JwtService {
     }
 
     private SecretKey getAccessSigningKey() {
-        log.debug("🔑 Getting access signing key.");
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
     private SecretKey getRefreshSigningKey() {
-        log.debug("🔁 Getting refresh signing key.");
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshSecretKey));
     }
 
