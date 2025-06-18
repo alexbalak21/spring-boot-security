@@ -6,6 +6,11 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.Collection;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,19 +19,19 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class User {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @NotBlank(message = "Name is required")
-    @Size(min = 3, max=50, message = "Full name must be between 3 and 50 characters")
+    @Size(min = 3, max = 50, message = "Full name must be between 3 and 50 characters")
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
 
-
     @NotBlank(message = "Username is required")
-    @Size(min = 3, max=50, message = "Username must be between 3 and 50 characters")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     @Column(nullable = false, unique = true)
     private String username;
 
