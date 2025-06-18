@@ -1,5 +1,6 @@
 package app.controller;
 
+import app.dto.RegisterRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserDTO user) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+
 
 
         return null;
