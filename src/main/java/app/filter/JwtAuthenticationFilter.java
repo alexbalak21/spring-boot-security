@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -23,9 +24,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
-        log.debug("[JwtFilter] Instantiating JwtAuthenticationFilter.");
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        log.debug("✅ [JwtFilter] JwtAuthenticationFilter constructor fired.");
     }
 
     @Override
@@ -35,45 +36,71 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NotNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        log.debug("🔥 [JwtFilter] Filter triggered for URI: {}", request.getRequestURI());
+        log.debug("🔥 [JwtFilter] doFilterInternal() invoked for URI: {}", request.getRequestURI());
+
+        // Show all headers
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String header = headerNames.nextElement();
+            log.debug("🔍 [JwtFilter] Header: {} = {}", header, request.getHeader(header));
+        }
 
         try {
             final String authHeader = request.getHeader("Authorization");
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                log.debug("[JwtFilter] No Bearer token found. Continuing unauthenticated.");
+
+            if (authHeader == null) {
+                log.debug("⚠️ [JwtFilter] Missing Authorization header. Skipping JWT filter.");
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            if (!authHeader.startsWith("Bearer ")) {
+                log.debug("⚠️ [JwtFilter] Authorization header found, but does not start with 'Bearer '. Value: {}", authHeader);
                 filterChain.doFilter(request, response);
                 return;
             }
 
             final String jwt = authHeader.substring(7);
+            log.debug("🧪 [JwtFilter] Extracted JWT token: {}", jwt);
+
             final String username = jwtService.usernameFromToken(jwt).orElse(null);
-            log.debug("[JwtFilter] Token extracted. Username: {}", username);
+            log.debug("🔎 [JwtFilter] Username extracted: {}", username);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                log.debug("[JwtFilter] User loaded: {}", userDetails.getUsername());
-
-                if (jwtService.validateToken(jwt, userDetails)) {
-                    log.debug("[JwtFilter] Token valid. Setting authentication context.");
-
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities()
-                    );
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-
-                    log.debug("[JwtFilter] SecurityContext populated for user: {}", username);
-                } else {
-                    log.warn("[JwtFilter] Token validation failed for user: {}", username);
-                }
-            } else {
-                log.debug("[JwtFilter] Skipping authentication. Context already populated or username missing.");
+            if (username == null) {
+                log.debug("⚠️ [JwtFilter] Username not found in token. Skipping authentication.");
+                filterChain.doFilter(request, response);
+                return;
             }
+
+            if (SecurityContextHolder.getContext().getAuthentication() != null) {
+                log.debug("ℹ️ [JwtFilter] SecurityContext already contains authentication. Skipping.");
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            log.debug("🔑 [JwtFilter] Loading user details for: {}", username);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            log.debug("🔐 [JwtFilter] Validating token for user: {}", username);
+            if (jwtService.validateToken(jwt, userDetails)) {
+                log.debug("✅ [JwtFilter] Token is valid. Creating authentication token.");
+
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities()
+                );
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                log.debug("🔒 [JwtFilter] SecurityContext successfully updated for user: {}", username);
+            } else {
+                log.warn("❌ [JwtFilter] Token validation failed for user: {}", username);
+            }
+
         } catch (Exception e) {
-            log.error("[JwtFilter] Exception during JWT processing: {}", e.getMessage(), e);
+            log.error("💥 [JwtFilter] Exception during JWT authentication: {}", e.getMessage(), e);
         }
 
-        log.debug("[JwtFilter] Continuing with filter chain.");
+        log.debug("➡️ [JwtFilter] Passing request down the filter chain.");
         filterChain.doFilter(request, response);
     }
 }

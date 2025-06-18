@@ -47,6 +47,18 @@ public class SecurityConfig {
     }
 
     @Bean
+    public Filter testLoggingFilter() {
+        return new OncePerRequestFilter() {
+            @Override
+            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+                    throws ServletException, IOException {
+                System.out.println("🧪 [TestFilter] Intercepted: " + request.getMethod() + " " + request.getRequestURI());
+                filterChain.doFilter(request, response);
+            }
+        };
+    }
+
+    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
@@ -61,7 +73,7 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(testLoggingFilter(), JwtAuthenticationFilter.class)
+                .addFilterBefore(testLoggingFilter(), UsernamePasswordAuthenticationFilter.class)  // Safe position
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/api/auth/**").permitAll()
@@ -70,17 +82,5 @@ public class SecurityConfig {
                 .userDetailsService(userDetailsService)
                 .httpBasic(Customizer.withDefaults())
                 .build();
-    }
-
-    @Bean
-    public Filter testLoggingFilter() {
-        return new OncePerRequestFilter() {
-            @Override
-            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-                    throws ServletException, IOException {
-                System.out.println("🧪 [TestFilter] Request intercepted: " + request.getMethod() + " " + request.getRequestURI());
-                filterChain.doFilter(request, response);
-            }
-        };
     }
 }
