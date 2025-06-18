@@ -1,8 +1,7 @@
 package app.service;
 
-
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.MacAlgorithm;
@@ -11,8 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,23 +28,23 @@ public class JwtService {
 
     private final static String TOKEN_PREFIX = "Bearer ";
 
-    //Generate token
+    // Generate access token
     public String generateToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTime);
-        MacAlgorithm algorithm = Jwts.SIG.HS512;
 
         return TOKEN_PREFIX + Jwts
                 .builder()
                 .subject(userPrincipal.getUsername())
+                .claim("tokenType", "accessToken")
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getAccessSigningKey())
                 .compact();
     }
 
-    //GENERATE REFRESH TOKEN
+    // Generate refresh token
     public String generateRefreshToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         Date now = new Date();
@@ -65,69 +62,60 @@ public class JwtService {
                 .compact();
     }
 
+    // Extract username from token (access token by default)
+    public Optional<String> usernameFromToken(String token) {
+        return usernameFromToken(token, false);
+    }
+
+    public Optional<String> usernameFromToken(String token, boolean isRefreshToken) {
+        return extractClaims(token, isRefreshToken)
+                .map(Claims::getSubject);
+    }
+
+    // Validate token (access token by default)
+    public boolean isTokenValid(String token) {
+        return isTokenValid(token, false);
+    }
+
+    public boolean isTokenValid(String token, boolean isRefreshToken) {
+        return extractClaims(token, isRefreshToken).isPresent();
+    }
+
+    // Extract claims from token
+    public Optional<Claims> extractClaims(String token) {
+        return extractClaims(token, false);
+    }
+
+    public Optional<Claims> extractClaims(String token, boolean isRefreshToken) {
+        try {
+            var claims = Jwts.parser()
+                    .verifyWith(isRefreshToken ? getRefreshSigningKey() : getAccessSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            String expectedType = isRefreshToken ? "refreshToken" : "accessToken";
+            String actualType = claims.get("tokenType", String.class);
+
+            if (!expectedType.equals(actualType)) {
+                return Optional.empty();
+            }
+
+            return Optional.of(claims);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    // Get access signing key
     private SecretKey getAccessSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    // Get refresh signing key
     private SecretKey getRefreshSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(refreshSecretKey);
         return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    public Optional<String> usernameFromAccessToken(String token) {
-        try {
-            return Optional.of(
-                    Jwts.parser()
-                            .verifyWith(getAccessSigningKey())
-                            .build()
-                            .parseSignedClaims(token)
-                            .getPayload()
-                            .getSubject()
-            );
-        } catch (Exception e) {
-            return Optional.empty(); // Signature invalid, token expired, etc.
-        }
-    }
-
-    //USERNAME FROM REFRESH TOKEN
-    public Optional<String> usernameFromRefreshToken(String refreshToken) {
-        try {
-            return Optional.of(
-                    Jwts.parser()
-                            .verifyWith(getRefreshSigningKey())
-                            .build()
-                            .parseSignedClaims(refreshToken)
-                            .getPayload()
-                            .getSubject()
-            );
-        } catch (Exception e) {
-            return Optional.empty(); // Signature invalid, token expired, etc.
-        }
-    }
-
-    public boolean isAccessTokenValid(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith(getAccessSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    //IS REFRESH TOKEN VALID
-    public boolean isRefreshTokenValid(String RefreshToken) {
-        try {
-            Jwts.parser()
-                    .verifyWith(getRefreshSigningKey())
-                    .build()
-                    .parseSignedClaims(RefreshToken);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 }
