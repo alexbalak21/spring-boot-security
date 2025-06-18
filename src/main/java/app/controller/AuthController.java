@@ -1,7 +1,8 @@
 package app.controller;
 
-import app.dto.LoginRequest.LoginRequest;
+import app.dto.LoginRequest;
 import app.dto.RegisterRequest;
+import app.dto.TokenPair;
 import app.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +27,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok("Logged in successfully");
+        TokenPair tokenPair = authService.login(request);
+        return ResponseEntity.ok(tokenPair);
     }
-
-
 }

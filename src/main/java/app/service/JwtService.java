@@ -1,5 +1,6 @@
 package app.service;
 
+import app.dto.TokenPair;
 import app.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -146,5 +147,11 @@ public class JwtService {
     private SecretKey getRefreshSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(refreshSecretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public TokenPair generateTokenPair(Authentication authentication) {
+        String accessToken = generateAccessToken(authentication);
+        String refreshToken = generateRefreshToken(authentication);
+        return new TokenPair(accessToken, refreshToken);
     }
 }
