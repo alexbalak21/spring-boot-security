@@ -2,12 +2,11 @@ package app.controller;
 
 import app.model.Product;
 import app.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/products")
@@ -21,8 +20,15 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
+ @GetMapping("/{id}")
+    public ResponseEntity<?> getProductById(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getProductById(id));
+    }
+
     @PostMapping
-    public ResponseEntity<?> saveProduct(Product product) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> saveProduct(@Valid @RequestBody Product product) {
         return ResponseEntity.ok(productService.saveProduct(product));
     }
+
 }

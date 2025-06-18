@@ -1,4 +1,6 @@
 ###GET ALL PRODUCTS
 GET http://localhost:8080/api/products
+Authorization: Basic YWxleDpwYXNzd29yZA==
 Content-Type: application/json
 
+{}
