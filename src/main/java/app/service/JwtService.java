@@ -1,13 +1,15 @@
 package app.service;
 
+import app.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.MacAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -15,6 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Service
+@Slf4j
 public class JwtService {
 
     @Value("${jwt.secret}")
@@ -27,6 +31,7 @@ public class JwtService {
     private long refreshExpirationTime;
 
     private final static String TOKEN_PREFIX = "Bearer ";
+
 
     // Generate access token
     public String generateToken(Authentication authentication) {
@@ -61,6 +66,22 @@ public class JwtService {
                 .signWith(getRefreshSigningKey())
                 .compact();
     }
+
+    public boolean validateToken(String token, UserDetails userDetails) {
+        try {
+            //IF TOKEN IS VALID
+            if (usernameFromToken(token).isPresent()) {
+                //IF TOKEN BELONGS TO RIGHT USER
+                return usernameFromToken(token).get().equals(userDetails.getUsername());
+            }
+            return false;
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
+
+
 
     // Extract username from token (access token by default)
     public Optional<String> usernameFromToken(String token) {
