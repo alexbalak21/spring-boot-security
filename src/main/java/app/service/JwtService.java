@@ -1,10 +1,10 @@
 package app.service;
 
 import app.repository.UserRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -34,7 +34,7 @@ public class JwtService {
 
 
     // Generate access token
-    public String generateToken(Authentication authentication) {
+    public String generateAccessToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTime);
@@ -67,6 +67,7 @@ public class JwtService {
                 .compact();
     }
 
+    //
     public boolean validateToken(String token, UserDetails userDetails) {
         try {
             //IF TOKEN IS VALID
@@ -121,11 +122,18 @@ public class JwtService {
             if (!expectedType.equals(actualType)) {
                 return Optional.empty();
             }
-
-            return Optional.of(claims);
-        } catch (Exception e) {
-            return Optional.empty();
+        }catch (SignatureException e) {
+            log.error("Invalid JWT signature: {}", e.getMessage());
+        }catch (MalformedJwtException e) {
+            log.error("Invalid JWT token: {}", e.getMessage());
+        }catch (ExpiredJwtException e) {
+            log.error("JWT token is expired: {}", e.getMessage());
+        }catch (UnsupportedJwtException e) {
+            log.error("User not found: {}", e.getMessage());
+        }catch (IllegalArgumentException e) {
+            log.error("JWT claims string is empty: {}", e.getMessage());
         }
+        return Optional.empty();
     }
 
     // Get access signing key
