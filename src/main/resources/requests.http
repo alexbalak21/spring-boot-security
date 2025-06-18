@@ -1,5 +1,7 @@
 ###GET ALL PRODUCTS
 GET http://localhost:8080/api/products
+#Base Authentication Header
+#PowerShell command : [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("alex:password"))
 Authorization: Basic YWxleDpwYXNzd29yZA==
 Content-Type: application/json
 
