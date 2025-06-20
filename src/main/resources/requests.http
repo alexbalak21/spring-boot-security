@@ -38,6 +38,7 @@ Content-type: application/json
 
 
 ###POST LOGIN USER
+# @name login
 POST http://localhost:8080/api/auth/login
 Content-type: application/json
 
@@ -46,12 +47,37 @@ Content-type: application/json
   "password": "password"
 }
 
+> {%
+    const token = JSON.parse(response.body).accessToken;
+    client.global.set("authToken", token);
+%}
+
 ###GET ALL PRODUCTS
 GET http://localhost:8080/api/products
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJNSzVTVWtveVlSN3R3Y3dqdTFjNEVkVEZub0tOYk9NVG9CUWo4NjdobUp6cGVZYlRxMUJPb3QxaDU0SDB4ZnkyIiwic3ViIjoiYWxleCIsInRva2VuVHlwZSI6ImFjY2Vzc1Rva2VuIiwiaWF0IjoxNzUwNDUxODEwLCJleHAiOjE3NTA0NTU0MTB9._A7tz47NyEwXpQ42GHfkoPGhKlB1ySwcEXyoDSAZVUsa1hFz3lVKKlbQIhVLGWrG7rJb8CLr30eiDuFefaay7A
+Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {}
 
 
-###Authorization: Bearer
+####EXEMPLE
+## Login and get JWT token
+# @name login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "alex",
+  "password": "password"
+}
+
+> {%
+    client.global.set("auth_token", response.body.accessToken);
+%}
+
+### Access protected endpoint with saved JWT token
+GET http://localhost:8080/api/products
+Authorization: {{auth_token}}
+Content-Type: application/json
+
+
