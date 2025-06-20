@@ -20,8 +20,8 @@ Authorization: Basic YWxleDpwYXNzd29yZA==
 Content-Type: application/json
 
 {
-    "name": "Product Created",
-    "price": "100.00"
+  "name": "Product Created",
+  "price": "100.00"
 }
 
 
@@ -30,10 +30,10 @@ POST http://localhost:8080/api/auth/register
 Content-type: application/json
 
 {
-    "fullName": "Alex Black",
-    "username": "alex",
-    "password": "password",
-    "role": "ROLE_ADMIN"
+  "fullName": "Alex Black",
+  "username": "alex",
+  "password": "password",
+  "role": "ROLE_ADMIN"
 }
 
 
@@ -42,8 +42,8 @@ POST http://localhost:8080/api/auth/login
 Content-type: application/json
 
 {
-    "username": "alex",
-    "password": "password"
+  "username": "alex",
+  "password": "password"
 }
 
 ###GET ALL PRODUCTS
